@@ -1,6 +1,6 @@
 /* Framework */
-import {ViewChild, Component, isDevMode, NgZone} from '@angular/core';
-import {Platform, MenuController, Nav, ToastController, ModalController, Events, Config, LoadingController, Tab, Tabs} from 'ionic-angular';
+import {ViewChild, Component, isDevMode, NgZone, OnInit} from '@angular/core';
+import {Platform, MenuController, Nav, ToastController, ModalController, Events, Config, LoadingController, IonicPage, Tab, Tabs} from 'ionic-angular';
 import {DomSanitizer} from '@angular/platform-browser';
 import {TranslateService} from '@ngx-translate/core';
 import {Http} from '@angular/http';
@@ -17,6 +17,7 @@ import {AppData} from '../providers/appdata/appdata';
 import {AppGeo} from '../providers/appgeo/appgeo';
 import {Logins} from '../providers/logins/logins';
 import {Download} from '../providers/download/download';
+import { OktaAuthService } from '@okta/okta-angular';
 
 /* Native */
 import { StatusBar } from '@ionic-native/status-bar';
@@ -80,8 +81,11 @@ export class MyApp {
   iphoneX: boolean = false;
   showingIntro: boolean = false;
   stopTabReset: boolean = false;
+  isAuthenticated: boolean;
+  token: string;
 
   constructor(
+    public oktaAuth: OktaAuthService,
     private platform: Platform,
     public appCamera: AppCamera,
     private menu: MenuController,
@@ -118,6 +122,23 @@ export class MyApp {
     private download: Download
   ) {
 
+    // this.token = this.navParams.get('token_id');
+
+    // if( this.token ) {
+    //   alert(this.token);
+    // }
+
+    if( location.href.indexOf('id_token') >= 0 ) {
+      this.oktaAuth.handleAuthentication().then( data => {
+        console.log('handleAuthentication', data);
+      })
+    }
+
+    // Subscribe to authentication state changes
+    this.oktaAuth.$authenticationState.subscribe(
+      (isAuthenticated: boolean)  => this.isAuthenticated = isAuthenticated
+    );
+
     this.initializeApp();
 
     events.subscribe('user:login', data => {
@@ -142,6 +163,19 @@ export class MyApp {
       this.pushPage( page );
     });
 
+  }
+
+  async ngOnInit() {
+    // Get the authentication state for immediate use
+    this.isAuthenticated = await this.oktaAuth.isAuthenticated();
+  }
+
+  oktaLogin() {
+    this.oktaAuth.loginRedirect('/profile');
+  }
+
+  oktaLogout() {
+    this.oktaAuth.logout('/');
   }
 
   initializeApp() {

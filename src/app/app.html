@@ -23,6 +23,9 @@
         {{p.title | translate}}
       </button>
 
+      <button *ngIf="!isAuthenticated" ion-button block icon-left (click)="oktaLogin()"> Login </button>
+      <button *ngIf="isAuthenticated" ion-button block icon-left (click)="oktaLogout()"> Logout </button>
+
       <button *ngIf="showLogin" ion-button block icon-left class="menu-login-button" (click)="openLoginModal()">
       <ion-icon name="log-in"></ion-icon>
       <span *ngIf="login_data">{{ 'Logout' | translate }}</span><span *ngIf="!login_data">{{ 'Login' | translate }}</span></button>

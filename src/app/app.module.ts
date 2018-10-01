@@ -25,6 +25,9 @@ import { Push } from "@ionic-native/push";
 import { Dialogs } from "@ionic-native/dialogs";
 import { Geolocation } from "@ionic-native/geolocation";
 import { InAppPurchase } from '@ionic-native/in-app-purchase';
+import { OktaAuthModule, OktaCallbackComponent } from '@okta/okta-angular';
+import { Routes, RouterModule } from '@angular/router';
+import { routing } from "./app.routing";
 
 /* Providers */
 import {AppCamera} from '../providers/camera/app-camera';
@@ -49,6 +52,7 @@ import {Download} from "../providers/download/download";
 import {BpProvider} from "../providers/buddypress/bp-provider";
 import { MenuService } from "../providers/menus/menu.service";
 import { NetworkStatusService } from "../providers/network/network-status.service";
+import { OktaAuthService } from '@okta/okta-angular';
 
 import {Iframe} from "../pages/iframe/iframe";
 
@@ -66,6 +70,34 @@ export class MyMissingTranslationHandler implements MissingTranslationHandler {
     }
 }
 
+// const config = {
+//   issuer: 'https://dev-693012.oktapreview.com/oauth2/default',
+//   redirectUri: 'http://localhost:8100/',
+//   clientId: ''
+// };
+
+const config = {
+  issuer: 'https://dev-693012.oktapreview.com/oauth2/default',
+  redirectUri: 'http://localhost:8100/',
+  url: 'https://dev-693012.oktapreview.com/oauth2/default',
+  ajaxRequest: (method, url, args) => {
+
+      console.log(method, url, args);
+      alert('done');
+
+
+    // args is in the form:
+    // {
+    //   headers: {
+    //     headerName: headerValue
+    //   },
+    //   data: postBodyData
+    // }
+    return Promise.resolve(/* a raw XMLHttpRequest response */);
+  },
+  clientId: '',
+};
+
 @NgModule({
   declarations: [
     MyApp,
@@ -77,6 +109,8 @@ export class MyMissingTranslationHandler implements MissingTranslationHandler {
     BrowserModule,
     HttpModule,
     HttpClientModule,
+    routing,
+    OktaAuthModule.initAuth(config),
     TranslateModule.forRoot({
       loader: {
         provide: TranslateLoader,
@@ -123,6 +157,7 @@ export class MyMissingTranslationHandler implements MissingTranslationHandler {
     StatusBar,
     Network,
     SocialSharing,
+    OktaAuthService,
     Push,
     Dialogs,
     Geolocation,
